@@ -6,7 +6,7 @@ https://lrusso.github.io/OnlineMP4Converter/OnlineMP4Converter.htm
 
 ## Roadmap:
 
-* UI
+* Implementing a UI.
 * Selecting a file.
 * Showing the convertion progress.
 * 4K MP4 to MP4 (lower bitrate).
