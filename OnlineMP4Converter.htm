@@ -127,6 +127,7 @@
 
 					case "stdout":
 					case "stderr":
+					console.log(msg.data);
 					// CHECKING IF THERE IS A DURATION VALUE
 					if (contentDuration==null)
 						{
@@ -188,6 +189,8 @@
 						}
 					break;
 					}
+
+				return true;
 				};
 
 			function readMultimediaFile(files)
