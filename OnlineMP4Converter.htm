@@ -226,10 +226,7 @@
 							worker.postMessage({
 								type: "run",
 								TOTAL_MEMORY: 268435456,
-								arguments: ["-i","input.mp4","-b","300k","out.mp4"],
-								//arguments: ["-i","input.mp4","-s","720x480","-c:a","copy","out.mp4"],
-								//arguments: ["-r", "20", "-i", "algo.jpg", "-c:v", "libx264", "-crf", "1", "-vf", "scale=360:360", "-pix_fmt", "yuv420p", "-vb", "20M", "out.mp4"],
-								//arguments: ["-r", "20", "-i", "algo.jpg", "-c:v", "libx264", "-crf", "1", "-vf", "scale=150:150", "-pix_fmt", "yuv420p", "-vb", "20M", "out.mp4"],
+								arguments: ["-i","input.mp4","-crf","23","out.mp4"],
 								MEMFS: contentSource
 								});
 
