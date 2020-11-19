@@ -201,7 +201,7 @@
 					var extension = files[0].name.split(".").pop().toLowerCase();
 
 					// CHECKING THE FILE EXTENSION
-					if (extension=="mp4" | extension=="mov" | extension=="3gp")
+					if (extension=="mp4" | extension=="mov" | extension=="3gp" | extension=="avi" | extension=="mkv")
 						{
 						var filereader = new FileReader();
 						filereader.file_name = files[0].name;
@@ -246,7 +246,7 @@
 						document.getElementById("gui_controls_file").value = null;
 
 						// SHOWING AN ERROR EXTENSION ERROR MESSAGE
-						alertCustom("MESSAGE","Please check that the video file has an allowed<br />format: MOV, MPG, 3GP, AVI and MP4.","OK");
+						alertCustom("MESSAGE","Please check that the video file has an allowed<br />format: MKV, MOV, MPG, 3GP, AVI and MP4.","OK");
 						}
 					}
 					catch(err)
