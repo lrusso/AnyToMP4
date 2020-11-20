@@ -32,9 +32,9 @@
 			.gui_controls_file{display:none}
 
 			#progress-shadow{position:fixed;left:0;top:0;right:0;bottom:0;background-color:rgba(0,0,0,0.85);display:none;z-index:9990}
-			#progress-bar-container{z-index:9991;position:fixed;width:200px;height:200px;margin:auto auto;left:0;top:0;bottom:0;right:0;text-align:center;display:none}
+			#progress-bar-container{z-index:9991;position:fixed;width:250px;height:250px;margin:auto auto;left:0;top:0;bottom:0;right:0;text-align:center;display:none}
 			#progress-value-container{z-index:9990;position:fixed;left:0;right:0;top:0;bottom:0;display:none}
-			#progress-value-container-number{position:relative;top:50%;transform:translateY(-50%);text-align:center;color:white;font-family:Arial;font-size:60px;font-weight:bold;color:#3a76b1;z-index:9992}
+			#progress-value-container-number{position:relative;top:50%;transform:translateY(-50%);text-align:center;color:white;font-family:Arial;font-size:55px;font-weight:bold;color:#3a76b1;z-index:9992}
 
 			.pleasewait{position:fixed;width:64px;height:64px;left:0;right:0;bottom:10px;margin:auto auto;border:0;z-index:9999}
 			.lds-spinner{color:white;display:inline-block;position:relative;width:64px;height:64px}
@@ -89,7 +89,7 @@
 			var contentSource;
 			var contentFilename;
 			var contentProgress = null;
-			var contentProgressRegEx = /frame=.*time=([0-9][0-9]:[0-9][0-9]:[0-9][0-9]).*speed=/g;
+			var contentProgressRegEx = /frame=.*time=([0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9]).*speed=/g;
 			var contentDuration = null;
 			var contentDurationRegEx = /Duration: ([0-9][0-9]:[0-9][0-9]:[0-9][0-9]).*\/s/g;
 			var circleProgressBar = new ProgressBar.Circle(document.getElementById("progress-bar-container"), { strokeWidth: 6, easing: "easeInOut", duration: 500, color: "#3a76b1", trailColor: "#FFFFFF", trailWidth: 2, svgStyle: null });
@@ -152,15 +152,23 @@
 							// SETTING THE PROGRESS VALUE
 							contentProgress = match[1];
 							}
-
 						}
 
 					// CHECKING IF THERE IS A DURATION AND PROGRESS VALUE
 					if (contentDuration!=null && contentProgress!=null)
 						{
-						// UPDATING THE PROGRESS BAR
-						document.getElementById("progress-value-container-number").innerHTML = getPercentage(contentProgress,contentDuration) + "%";
-						circleProgressBar.animate(getPercentage(contentProgress,contentDuration) / 100);
+						// GETTING THE CURRENT PERCENTAGE
+						var currentPercentage = getPercentage(contentProgress,contentDuration,1);
+
+						// VALIDATING THE CURRENT PERCENTAGE
+						if (currentPercentage<=100)
+							{
+							// UPDATING THE PROGRESS LABEL
+							document.getElementById("progress-value-container-number").innerHTML = currentPercentage + "%";
+
+							// UPDATING THE PROGRESS BAR
+							circleProgressBar.animate(currentPercentage / 100);
+							}
 						}
 					break;
 
@@ -256,13 +264,23 @@
 
 			function getPercentage(timeone, timetwo)
 				{
-				return (100 * totalSeconds(timeone) / totalSeconds(timetwo)).toFixed(0);
+				return (100 * totalSeconds(timeone) / totalSeconds(timetwo)).toFixed(1);
 				}
 
 			function totalSeconds(time)
 				{
+				time = time.replace(/\./g,":");
+
 				var parts = time.split(":");
-				return parseInt(parseInt(parts[0] * 3600) + parseInt(parts[1] * 60) + parseInt(parts[2]));
+
+				var finalValue = parseInt(parseInt(parts[0] * 3600) + parseInt(parts[1] * 60) + parseInt(parts[2]));
+
+				if (parts[3])
+					{
+					finalValue = finalValue + parseFloat("." + parts[3]);
+					}
+
+				return parseFloat(finalValue).toFixed(2);
 				}
 
 			function saveVideo(blob)
