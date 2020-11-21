@@ -1,6 +1,6 @@
 # Any to MP4
 
-Convert any video file to MP4 using JavaScript.
+Convert any video file to MP4 in JavaScript.
 
 ![alt screenshot](https://raw.githubusercontent.com/lrusso/AnyToMP4/main/AnyToMP4.png)
 
