@@ -89,56 +89,24 @@
 			var contentSource;
 			var contentFilename;
 			var contentProgress = null;
-			var contentProgressRegEx = /.*time=([0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9]).*speed=/g;
+			var contentProgressRegEx = /frame=.*time=([0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9]).*speed=/g;
 			var contentDuration = null;
 			var contentDurationRegEx = /Duration: ([0-9][0-9]:[0-9][0-9]:[0-9][0-9]).*\/s/g;
 			var circleProgressBar = new ProgressBar.Circle(document.getElementById("progress-bar-container"), { strokeWidth: 6, easing: "easeInOut", duration: 500, color: "#3a76b1", trailColor: "#FFFFFF", trailWidth: 2, svgStyle: null });
-			var worker1Loaded = false;
-			var worker2Loaded = false;
 
-			// CREATING THE VIDEO CONVERTER WEB WORKER
-			var workerVideo = new Worker("OnlineMP4ConverterVideo.js")
-			workerVideo.onmessage = function(e)
+			// CREATING THE WEB WORKER
+			var worker = new Worker("OnlineMP4Converter.js")
+
+			// SETTING WHAT WILL HAPPEN WHEN A MESSAGE IS RECEIVED FROM THE WEB WORKER
+			worker.onmessage = function(e)
 				{
 				// GETTING THE WORKER MESSAGE
 				var msg = e.data;
 
 				// CHECKING THE WORKER MESSAGE
-				if (msg.type)
+				switch (msg.type)
 					{
-					if (msg.type=="ready"){worker1Loaded = true;handlerReady();}
-					else if(msg.type=="stdout" || msg.type=="stderr"){handlerUpdate(msg);}
-					else if(msg.type=="exit"){handlerExit(msg);}
-					else if(msg.type=="done"){handlerDone(msg);}
-					}
-
-				return true;
-				};
-
-			// CREATING THE AUDIO CONVERTER WEB WORKER
-			var workerAudio = new Worker("OnlineMP4ConverterAudio.js")
-			workerAudio.onmessage = function(e)
-				{
-				// GETTING THE WORKER MESSAGE
-				var msg = e.data;
-
-				// CHECKING THE WORKER MESSAGE
-				if (msg.type)
-					{
-					if (msg.type=="ready"){worker2Loaded = true;handlerReady();}
-					else if(msg.type=="stdout" || msg.type=="stderr"){handlerUpdate(msg);}
-					else if(msg.type=="exit"){handlerExit(msg);}
-					else if(msg.type=="done"){handlerDone(msg);}
-					}
-
-				return true;
-				};
-
-			function handlerReady()
-				{
-				// CHECKING IF BOTH WORKER WERE LOADED
-				if (worker1Loaded==true && worker2Loaded==true)
-					{
+					case "ready":
 					// HIDING THE PLEASE WAIT ICON
 					document.getElementsByClassName("pleasewait")[0].style.display = "none";
 
@@ -155,84 +123,83 @@
 						// OPENING THE UPLOAD FILE SYSTEM DIALOG
 						document.getElementById("gui_controls_file").click();
 						});
-					}
-				}
+					break;
 
-			function handlerUpdate(msg)
-				{
-				// SHOWING THE CONVERSTION DATA
-				console.log(msg.data);
-
-				// CHECKING IF THERE IS A DURATION VALUE
-				if (contentDuration==null)
-					{
-					// MATCHING FOR A DURATION VALUE IN THE WORKER MESSAGE
-					var match = contentDurationRegEx.exec(msg.data);
-
-					// CHECKING IF THE IS A DURATION VALUE IN THE WORKER MESSAGE
-					if(match)
+					case "stdout":
+					case "stderr":
+					console.log(msg.data);
+					// CHECKING IF THERE IS A DURATION VALUE
+					if (contentDuration==null)
 						{
-						// SETTING THE DURATION VALUE
-						contentDuration = match[1];
-						}
-					}
-					else
-					{
-					// MATCHING FOR A PROGRESS VALUE IN THE WORKER MESSAGE
-					var match = contentProgressRegEx.exec(msg.data);
+						// MATCHING FOR A DURATION VALUE IN THE WORKER MESSAGE
+						var match = contentDurationRegEx.exec(msg.data);
 
-					// CHECKING IF THE IS A PROGRESS VALUE IN THE WORKER MESSAGE
-					if(match)
+						// CHECKING IF THE IS A DURATION VALUE IN THE WORKER MESSAGE
+						if(match)
+							{
+							// SETTING THE DURATION VALUE
+							contentDuration = match[1];
+							}
+						}
+						else
 						{
-						// SETTING THE PROGRESS VALUE
-						contentProgress = match[1];
+						// MATCHING FOR A PROGRESS VALUE IN THE WORKER MESSAGE
+						var match = contentProgressRegEx.exec(msg.data);
+
+						// CHECKING IF THE IS A PROGRESS VALUE IN THE WORKER MESSAGE
+						if(match)
+							{
+							// SETTING THE PROGRESS VALUE
+							contentProgress = match[1];
+							}
 						}
-					}
 
-				// CHECKING IF THERE IS A DURATION AND PROGRESS VALUE
-				if (contentDuration!=null && contentProgress!=null)
-					{
-					// GETTING THE CURRENT PERCENTAGE
-					var currentPercentage = getPercentage(contentProgress,contentDuration,1);
-
-					// VALIDATING THE CURRENT PERCENTAGE
-					if (currentPercentage<=100)
+					// CHECKING IF THERE IS A DURATION AND PROGRESS VALUE
+					if (contentDuration!=null && contentProgress!=null)
 						{
-						// UPDATING THE PROGRESS LABEL
-						document.getElementById("progress-value-container-number").innerHTML = currentPercentage + "%";
+						// GETTING THE CURRENT PERCENTAGE
+						var currentPercentage = getPercentage(contentProgress,contentDuration,1);
 
-						// UPDATING THE PROGRESS BAR
-						circleProgressBar.animate(currentPercentage / 100);
+						// VALIDATING THE CURRENT PERCENTAGE
+						if (currentPercentage<=100)
+							{
+							// UPDATING THE PROGRESS LABEL
+							document.getElementById("progress-value-container-number").innerHTML = currentPercentage + "%";
+
+							// UPDATING THE PROGRESS BAR
+							circleProgressBar.animate(currentPercentage / 100);
+							}
 						}
+					break;
+
+					case "exit":
+					console.log("Process exited with code " + msg.data);
+					break;
+
+					case "done":
+					// HIDING THE PROGRESS BAR
+					document.getElementById("progress-shadow").style.display = "none";
+					document.getElementById("progress-bar-container").style.display = "none";
+					document.getElementById("progress-value-container").style.display = "none";
+
+					// CLEARING THE VARIABLES
+					contentSource = null;
+					contentProgress = null;
+					contentDuration = null;
+					circleProgressBar.animate(0);
+					document.getElementById("progress-value-container-number").innerHTML = "";
+
+					// CHECKING IF THERE IS A VIDEO TO SAVE
+					if (msg.data.MEMFS[0])
+						{
+						// SAVING THE VIDEO
+						saveVideo(new Blob([msg.data.MEMFS[0].data],{type:"video/mp4"}));
+						}
+					break;
 					}
-				}
 
-			function handlerExit(msg)
-				{
-				console.log("Process exited with code " + msg.data);
-				}
-
-			function handlerDone(msg)
-				{
-				// HIDING THE PROGRESS BAR
-				document.getElementById("progress-shadow").style.display = "none";
-				document.getElementById("progress-bar-container").style.display = "none";
-				document.getElementById("progress-value-container").style.display = "none";
-
-				// CLEARING THE VARIABLES
-				contentSource = null;
-				contentProgress = null;
-				contentDuration = null;
-				circleProgressBar.animate(0);
-				document.getElementById("progress-value-container-number").innerHTML = "";
-
-				// CHECKING IF THERE IS A VIDEO TO SAVE
-				if (msg.data.MEMFS[0])
-					{
-					// SAVING THE VIDEO
-					saveVideo(new Blob([msg.data.MEMFS[0].data],{type:"video/mp4"}));
-					}
-				}
+				return true;
+				};
 
 			function readMultimediaFile(files)
 				{
@@ -242,7 +209,7 @@
 					var extension = files[0].name.split(".").pop().toLowerCase();
 
 					// CHECKING THE FILE EXTENSION
-					if (extension=="mp4" | extension=="mov" | extension=="3gp" | extension=="avi" | extension=="mkv" | extension=="wav" | extension=="ogg" | extension=="mp3")
+					if (extension=="mp4" | extension=="mov" | extension=="3gp" | extension=="avi" | extension=="mkv")
 						{
 						var filereader = new FileReader();
 						filereader.file_name = files[0].name;
@@ -257,42 +224,22 @@
 							document.getElementById("progress-bar-container").style.display = "block";
 							document.getElementById("progress-value-container").style.display = "block";
 
+							// SETTING THE VIDEO FILENAME
+							contentFilename = files[0].name.slice(0, -4) + ".mp4";
+
 							// CREATING THE DATA
 							var data = new Uint8Array(this.result);
 
-							// CHECKING IF THE FILE IS A VIDEO
-							if (extension=="mp4" | extension=="mov" | extension=="3gp" | extension=="avi" | extension=="mkv")
-								{
-								// SETTING THE VIDEO FILENAME
-								contentFilename = files[0].name.slice(0, -4) + "_converted.mp4";
+							// CREATING THE SOURCE
+							contentSource = [{name: "input.mp4", data}];
 
-								// CREATING THE SOURCE
-								contentSource = [{name: "input.mp4", data}];
-
-								// CONVERTING THE SOURCE TO MP4
-								workerVideo.postMessage({
-									type: "run",
-									TOTAL_MEMORY: 268435456,
-									arguments: ["-i","input.mp4","-crf","23","output.mp4"],
-									MEMFS: contentSource
-									});
-								}
-								else
-								{
-								// SETTING THE AUDIO FILENAME
-								contentFilename = files[0].name.slice(0, -4) + "_converted.mp3";
-
-								// CREATING THE SOURCE
-								contentSource = [{name: "input.wav", data}];
-
-								// CONVERTING THE SOURCE TO MP3
-								workerAudio.postMessage({
-									type: "run",
-									TOTAL_MEMORY: 268435456,
-									arguments: ["-i","input.wav","output.mp3"],
-									MEMFS: contentSource
-									});
-								}
+							// CONVERTING THE SOURCE TO MP4
+							worker.postMessage({
+								type: "run",
+								TOTAL_MEMORY: 268435456,
+								arguments: ["-i","input.mp4","-crf","23","out.mp4"],
+								MEMFS: contentSource
+								});
 
 							// CLEARING THE SELECTED FILE VALUE
 							document.getElementById("gui_controls_file").value = null;
