@@ -35,9 +35,11 @@
 			.gui_description{line-height:1.5}
 
 			#progress-shadow{position:fixed;left:0;top:0;right:0;bottom:0;background-color:rgba(0,0,0,0.85);display:none;z-index:9990}
+			#progress-title-container{z-index:9990;position:fixed;left:0;right:0;top:-360px;bottom:0;display:none}
+			#progress-title-container-label{position:relative;top:50%;transform:translateY(-50%);text-align:center;color:white;font-family:Arial;font-size:35px;font-weight:bold;color:white;z-index:9992}
 			#progress-bar-container{z-index:9991;position:fixed;width:250px;height:250px;margin:auto auto;left:0;top:0;bottom:0;right:0;text-align:center;display:none}
 			#progress-value-container{z-index:9990;position:fixed;left:0;right:0;top:0;bottom:0;display:none}
-			#progress-value-container-number{position:relative;top:50%;transform:translateY(-50%);text-align:center;color:white;font-family:Arial;font-size:55px;font-weight:bold;color:#3a76b1;z-index:9992}
+			#progress-value-container-number{position:relative;top:50%;transform:translateY(-50%);text-align:center;color:white;font-family:Arial;font-size:50px;font-weight:bold;color:#3a76b1;z-index:9992}
 
 			@media only screen and (orientation:portrait)
 				{
@@ -65,6 +67,9 @@
 	</head>
 	<body>
 		<div id="progress-shadow"></div>
+		<div id="progress-title-container">
+			<div id="progress-title-container-label"></div>
+		</div>
 		<div id="progress-bar-container"></div>
 		<div id="progress-value-container">
 			<div id="progress-value-container-number"></div>
@@ -77,7 +82,9 @@
 
 			var userLanguage = window.navigator.userLanguage || window.navigator.language;
 
-			var STRING_DESCRIPTION = "";
+			var STRING_WELCOME = "";
+			var STRING_CONVERTING = "";
+			var STRING_CONVERTED = "";
 			var STRING_ERROREXTENSION_TITLE = "";
 			var STRING_ERROREXTENSION_MESSAGE = "";
 			var STRING_ERROREXTENSION_ACCEPT = "";
@@ -85,18 +92,25 @@
 			// CHECKING THE USER LANGUAGE
 			if (userLanguage.substring(0,2)=="es")
 				{
-				STRING_DESCRIPTION = "Haga click en el &iacute;cono inferior<br />y seleccione un archivo de vídeo<br />para descargarlo en formato MP4.";
+				STRING_WELCOME = "Haga click en el &iacute;cono inferior<br />y seleccione un archivo de vídeo<br />para descargarlo en formato MP4.";
+				STRING_CONVERTING = "PROCESANDO...";
+				STRING_CONVERTED = "convertido";
 				STRING_ERROREXTENSION_TITLE = "MENSAJE";
 				STRING_ERROREXTENSION_MESSAGE = "Por favor verifique que el archivo se<br/>encuentre en formato MKV, MOV,<br />3GP, AVI o MP4.";
 				STRING_ERROREXTENSION_ACCEPT = "Aceptar";
 				}
 				else
 				{
-				STRING_DESCRIPTION = "Click in the icon below<br />and select a video file<br />to convert it to MP4.";
+				STRING_WELCOME = "Click in the icon below<br />and select a video file<br />to convert it to MP4.";
+				STRING_CONVERTING = "CONVERTING...";
+				STRING_CONVERTED = "converted";
 				STRING_ERROREXTENSION_TITLE = "MESSAGE";
 				STRING_ERROREXTENSION_MESSAGE = "Please check that the video file has<br />an allowed format: MKV, MOV,<br/>3GP, AVI or MP4.";
 				STRING_ERROREXTENSION_ACCEPT = "OK";
 				}
+
+			// UPDATING THE 'CONVERTING...' LABEL VALUE
+			document.getElementById("progress-title-container-label").innerHTML = STRING_CONVERTING;
 
 			var contentSource;
 			var contentFilename;
@@ -191,6 +205,8 @@
 					case "done":
 					// HIDING THE PROGRESS BAR
 					document.getElementById("progress-shadow").style.display = "none";
+					document.getElementById("progress-title-container").style.display = "none";
+					document.getElementById("progress-title-container-label").style.display = "none";
 					document.getElementById("progress-bar-container").style.display = "none";
 					document.getElementById("progress-value-container").style.display = "none";
 
@@ -233,11 +249,13 @@
 
 							// SHOWING THE PROGRESS BAR
 							document.getElementById("progress-shadow").style.display = "block";
+							document.getElementById("progress-title-container").style.display = "block";
+							document.getElementById("progress-title-container-label").style.display = "block";
 							document.getElementById("progress-bar-container").style.display = "block";
 							document.getElementById("progress-value-container").style.display = "block";
 
 							// SETTING THE VIDEO FILENAME
-							contentFilename = files[0].name.slice(0, -4) + "_converted.mp4";
+							contentFilename = files[0].name.slice(0, -4) + "_" + STRING_CONVERTED + ".mp4";
 
 							// CREATING THE DATA
 							var data = new Uint8Array(this.result);
@@ -320,7 +338,7 @@
 				<b>Any to MP4</b><br/>
 				<br />
 				<div class="gui_description">
-					<script>document.write(STRING_DESCRIPTION);</script>
+					<script>document.write(STRING_WELCOME);</script>
 				</div>
 			</div>
 			<div class="gui_upload"></div>
