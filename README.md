@@ -1,12 +1,12 @@
-# Online MP4 Converter
+# Any to MP4
 
-Online MP4 Converter in JavaScript.
+Convert any video file to MP4 using JavaScript.
 
 ![alt screenshot](https://raw.githubusercontent.com/lrusso/AnyToMP4/main/AnyToMP4.png)
 
 ## Web:
 
-https://lrusso.github.io/OnlineMP4Converter/OnlineMP4Converter.htm
+https://www.anytomp4.com
 
 ## Using ffmpeg porting from:
 
