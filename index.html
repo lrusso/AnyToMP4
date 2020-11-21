@@ -88,6 +88,29 @@
 
 			function alertCustom(title,message,accept){try{var alertContainer = document.createElement("div");alertContainer.style.position = "fixed";alertContainer.style.top = 0;alertContainer.style.bottom = 0;alertContainer.style.left = 0;alertContainer.style.right = 0;alertContainer.style.zIndex = 9999;alertContainer.style.backgroundColor = "rgba(0,0,0,0.5)";var alertForm = document.createElement("div");alertForm.style.position = "relative";alertForm.style.top = "50%";alertForm.style.left = 0;alertForm.style.right = 0;alertForm.style.marginLeft = "auto";alertForm.style.marginRight = "auto";alertForm.style.transform = "translateY(-50%)";alertForm.style.width = "350px";alertForm.style.backgroundColor = "#f2f2f2";alertForm.style.textAlign = "center";var alertTitle = document.createElement("div");alertTitle.style.textAlign = "left";alertTitle.style.paddingLeft = "10px";alertTitle.style.backgroundColor = "#3a76b1";alertTitle.style.fontFamily = "Arial";alertTitle.style.fontSize = "16px";alertTitle.style.fontWeight = "bold";alertTitle.style.color = "white";alertTitle.style.lineHeight = 2.5;alertTitle.innerHTML = title;var alertMessage = document.createElement("div");alertMessage.style.padding = "20px";alertMessage.style.fontFamily = "Arial";alertMessage.style.fontSize = "16px";alertMessage.style.color = "black";alertMessage.style.textAlign = "center";alertMessage.style.lineHeight = 2;alertMessage.innerHTML = message;var alertButton = document.createElement("div");alertButton.style.padding = "10px";alertButton.style.backgroundColor = "#d2d2d2";alertButton.style.border = "1px solid #b2b2b2";alertButton.style.fontFamily = "Arial";alertButton.style.fontSize = "16px";alertButton.style.color = "black";alertButton.style.textAlign = "center";alertButton.style.lineHeight = 1.5;alertButton.style.display = "inline-block";alertButton.style.marginBottom = "10px";alertButton.style.paddingLeft = "40px";alertButton.style.paddingRight = "40px";alertButton.style.cursor = "pointer";alertButton.addEventListener("click",function(event){document.body.removeChild(alertContainer);});alertButton.innerHTML = accept;alertForm.appendChild(alertTitle);alertForm.appendChild(alertMessage);alertForm.appendChild(alertButton);alertContainer.appendChild(alertForm);document.body.appendChild(alertContainer);}catch(err){}}
 
+			var userLanguage = window.navigator.userLanguage || window.navigator.language;
+
+			var STRING_DESCRIPTION = "";
+			var STRING_ERROREXTENSION_TITLE = "";
+			var STRING_ERROREXTENSION_MESSAGE = "";
+			var STRING_ERROREXTENSION_ACCEPT = "";
+
+			// CHECKING THE USER LANGUAGE
+			if (userLanguage.substring(0,2)=="es")
+				{
+				STRING_DESCRIPTION = "&iquest;C&oacute;mo funciona?";
+				STRING_ERROREXTENSION_TITLE = "MENSAJE";
+				STRING_ERROREXTENSION_MESSAGE = "Por favor verifique que el archivo se<br/>encuentre en formato MKV, MOV,<br />3GP, AVI o MP4.";
+				STRING_ERROREXTENSION_ACCEPT = "Aceptar";
+				}
+				else
+				{
+				STRING_DESCRIPTION = "How does it work?";
+				STRING_ERROREXTENSION_TITLE = "MESSAGE";
+				STRING_ERROREXTENSION_MESSAGE = "Please check that the video file has<br />an allowed format: MKV, MOV,<br/>3GP, AVI or MP4.";
+				STRING_ERROREXTENSION_ACCEPT = "OK";
+				}
+
 			var contentSource;
 			var contentFilename;
 			var contentProgress = null;
@@ -256,7 +279,7 @@
 						document.getElementById("gui_controls_file").value = null;
 
 						// SHOWING AN ERROR EXTENSION ERROR MESSAGE
-						alertCustom("MESSAGE","Please check that the video file has<br />an allowed format: MKV, MOV,<br/>3GP, AVI or MP4.","OK");
+						alertCustom(STRING_ERROREXTENSION_TITLE,STRING_ERROREXTENSION_MESSAGE,STRING_ERROREXTENSION_ACCEPT);
 						}
 					}
 					catch(err)
