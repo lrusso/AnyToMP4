@@ -97,6 +97,7 @@
 
 			var userLanguage = window.navigator.userLanguage || window.navigator.language;
 
+			var STRING_ABOUT = "";
 			var STRING_WELCOME = "";
 			var STRING_CONVERTING = "";
 			var STRING_CONVERTED = "";
@@ -107,6 +108,7 @@
 			// CHECKING THE USER LANGUAGE
 			if (userLanguage.substring(0,2)=="es")
 				{
+				STRING_ABOUT = "Desarrollado por LRusso.com";
 				STRING_WELCOME = "Haga click en el &iacute;cono inferior<br />y seleccione un archivo de vídeo<br />para descargarlo en formato MP4.";
 				STRING_CONVERTING = "PROCESANDO...";
 				STRING_CONVERTED = "convertido";
@@ -116,6 +118,7 @@
 				}
 				else
 				{
+				STRING_ABOUT = "Designed by LRusso.com";
 				STRING_WELCOME = "Click in the icon below<br />and select a video file<br />to convert it to MP4.";
 				STRING_CONVERTING = "CONVERTING...";
 				STRING_CONVERTED = "converted";
@@ -349,7 +352,7 @@
 			<div class="gui_background"></div>
 			<div class="gui_title">
 				<div class="gui_title_logo"></div>
-				<div class="gui_title_how_desktop"><span class="gui_title_how_desktop_question">Desarrollado por LRusso.com</span></div>
+				<div class="gui_title_how_desktop"><span class="gui_title_how_desktop_question"><script>document.write(STRING_ABOUT);</script></span></div>
 				<div class="gui_title_email"><a class="gui_title_email_value" href="mailto:info@anytomp4.com">info@anytomp4.com</a></div>
 			</div>
 			<div class="gui_email"><a href="mailto:info@anytomp4.com">info@anytomp4.com</a></div>
