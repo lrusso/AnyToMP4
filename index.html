@@ -39,6 +39,11 @@
 			#progress-value-container{z-index:9990;position:fixed;left:0;right:0;top:0;bottom:0;display:none}
 			#progress-value-container-number{position:relative;top:50%;transform:translateY(-50%);text-align:center;color:white;font-family:Arial;font-size:55px;font-weight:bold;color:#3a76b1;z-index:9992}
 
+			@media only screen and (orientation:portrait)
+				{
+				.gui_background{background-position:center 0;background-size:auto 100%}
+				}
+
 			.pleasewait{position:fixed;width:64px;height:64px;left:0;right:0;bottom:10px;margin:auto auto;border:0;z-index:9999}
 			.lds-spinner{color:white;display:inline-block;position:relative;width:64px;height:64px}
 			.lds-spinner div{transform-origin:32px 32px;animation:lds-spinner 1.2s linear infinite}
