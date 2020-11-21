@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8">
-		<title>Any to MP4</title>
+		<title>Any to MP4 - Online Video Converter</title>
 		<meta property="og:title" content="Any to MP4"/>
 		<meta property="og:url" content="https://www.anytomp4.com/"/>
 		<meta property="og:description" content="info@anytomp4.com"/>
@@ -12,6 +12,8 @@
 		<meta name="theme-color" content="#000000"/>
 		<meta name="mobile-web-app-capable" content="yes"/>
 		<meta name="apple-mobile-web-app-capable" content="yes"/>
+		<meta name="description" content="Any to MP4. Free and Open Source Online Video Converter."/>
+		<meta name="keywords" content="video, converter, free, open, source, files, online, mkv, mov, 3gp, avi, mp4"/>
 		<link rel="manifest" href="AnyToMP4.json"/>
 		<link rel="icon" sizes="16x16" type="image/png" href="AnyToMP4FavIcon_16x16.png"/>
 		<link rel="icon" sizes="192x192" type="image/png" href="AnyToMP4FavIcon_192x192.png"/>
@@ -209,7 +211,7 @@
 					var extension = files[0].name.split(".").pop().toLowerCase();
 
 					// CHECKING THE FILE EXTENSION
-					if (extension=="mp4" | extension=="mov" | extension=="3gp" | extension=="avi" | extension=="mkv")
+					if ( extension=="mkv" | extension=="mov" | extension=="3gp" | extension=="avi" | extension=="mp4")
 						{
 						var filereader = new FileReader();
 						filereader.file_name = files[0].name;
@@ -254,7 +256,7 @@
 						document.getElementById("gui_controls_file").value = null;
 
 						// SHOWING AN ERROR EXTENSION ERROR MESSAGE
-						alertCustom("MESSAGE","Please check that the video file has<br />an allowed format: MKV, MOV,<br/>MPG, 3GP, AVI or MP4.","OK");
+						alertCustom("MESSAGE","Please check that the video file has<br />an allowed format: MKV, MOV,<br/>3GP, AVI or MP4.","OK");
 						}
 					}
 					catch(err)
