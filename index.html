@@ -101,6 +101,9 @@
 			var STRING_WELCOME = "";
 			var STRING_CONVERTING = "";
 			var STRING_CONVERTED = "";
+			var STRING_ERRORCONVERTING_TITLE = "";
+			var STRING_ERRORCONVERTING_MESSAGE = "";
+			var STRING_ERRORCONVERTING_ACCEPT = "";
 			var STRING_ERROREXTENSION_TITLE = "";
 			var STRING_ERROREXTENSION_MESSAGE = "";
 			var STRING_ERROREXTENSION_ACCEPT = "";
@@ -109,9 +112,12 @@
 			if (userLanguage.substring(0,2)=="es")
 				{
 				STRING_ABOUT = "Desarrollado por LRusso.com";
-				STRING_WELCOME = "Haga click en el &iacute;cono inferior<br />y seleccione un archivo de vídeo<br />para descargarlo en formato MP4.";
+				STRING_WELCOME = "Haga click en el &iacute;cono inferior<br />y seleccione un archivo de v&iacute;deo<br />para descargarlo en formato MP4.";
 				STRING_CONVERTING = "PROCESANDO...";
 				STRING_CONVERTED = "convertido";
+				STRING_ERRORCONVERTING_TITLE = "MENSAJE";
+				STRING_ERRORCONVERTING_MESSAGE = "Hubo un error al convertir el v&iacute;deo.";
+				STRING_ERRORCONVERTING_ACCEPT = "Aceptar";
 				STRING_ERROREXTENSION_TITLE = "MENSAJE";
 				STRING_ERROREXTENSION_MESSAGE = "Por favor verifique que el archivo se<br/>encuentre en formato MKV, MOV,<br />3GP, AVI o MP4.";
 				STRING_ERROREXTENSION_ACCEPT = "Aceptar";
@@ -122,6 +128,9 @@
 				STRING_WELCOME = "Click in the icon below<br />and select a video file<br />to convert it to MP4.";
 				STRING_CONVERTING = "CONVERTING...";
 				STRING_CONVERTED = "converted";
+				STRING_ERRORCONVERTING_TITLE = "MESSAGE";
+				STRING_ERRORCONVERTING_MESSAGE = "An error occurred while converting.";
+				STRING_ERRORCONVERTING_ACCEPT = "OK";
 				STRING_ERROREXTENSION_TITLE = "MESSAGE";
 				STRING_ERROREXTENSION_MESSAGE = "Please check that the video file has<br />an allowed format: MKV, MOV,<br/>3GP, AVI or MP4.";
 				STRING_ERROREXTENSION_ACCEPT = "OK";
@@ -235,11 +244,16 @@
 					circleProgressBar.animate(0);
 					document.getElementById("progress-value-container-number").innerHTML = "";
 
-					// CHECKING IF THERE IS A VIDEO TO SAVE
+					// CHECKING IF THERE IS A CONVERTED VIDEO TO DOWNLOADED
 					if (msg.data.MEMFS[0])
 						{
-						// SAVING THE VIDEO
-						saveVideo(new Blob([msg.data.MEMFS[0].data],{type:"video/mp4"}));
+						// DOWNLOADING THE CONVERTED VIDEO
+						downloadVideo(new Blob([msg.data.MEMFS[0].data],{type:"video/mp4"}));
+						}
+						else
+						{
+						// SHOWING THE 'ERROR WHILE CONVERTING' MESSAGE
+						alertCustom(STRING_ERRORCONVERTING_TITLE,STRING_ERRORCONVERTING_MESSAGE,STRING_ERRORCONVERTING_ACCEPT);
 						}
 					break;
 					}
@@ -331,7 +345,7 @@
 				return parseFloat(finalValue).toFixed(2);
 				}
 
-			function saveVideo(blob)
+			function downloadVideo(blob)
 				{
 				var link = document.createElement("a");
 				link.style.display = "none";
