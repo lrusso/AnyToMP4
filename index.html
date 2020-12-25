@@ -117,6 +117,9 @@
 
 			var userLanguage = window.navigator.userLanguage || window.navigator.language;
 
+			var SITE_TITLE = "Any to MP4";
+			var SITE_DESCRIPTION = " - Online Video Converter";
+
 			var STRING_ABOUT = "";
 			var STRING_HOW_DESKTOP1 = "";
 			var STRING_HOW_DESKTOP2 = "";
@@ -248,6 +251,9 @@
 							// UPDATING THE PROGRESS LABEL
 							document.getElementById("progress-value-container-number").innerHTML = currentPercentage + "%";
 
+							// UPDATING THE SITE TITLE
+							document.title = currentPercentage + "% - " + SITE_TITLE;
+
 							// UPDATING THE PROGRESS BAR
 							circleProgressBar.animate(currentPercentage / 100);
 							}
@@ -272,6 +278,9 @@
 					contentDuration = null;
 					circleProgressBar.animate(0);
 					document.getElementById("progress-value-container-number").innerHTML = "";
+
+					// RESTORING THE SITE TITLE
+					document.title = SITE_TITLE + SITE_DESCRIPTION;
 
 					// CHECKING IF THERE IS A CONVERTED VIDEO TO DOWNLOADED
 					if (msg.data.MEMFS[0])
