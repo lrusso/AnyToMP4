@@ -2,7 +2,7 @@
 	"name": "Any to MP4",
 	"short_name": "Any to MP4",
 	"lang": "en-US",
-	"start_url": "https://lrusso.github.io/AnyToMP4",
+	"start_url": "https://lrusso.github.io/AnyToMP4/AnyToMP4.htm",
 	"display": "standalone",
 	"orientation": "portrait",
 	"theme_color": "#18222e",
