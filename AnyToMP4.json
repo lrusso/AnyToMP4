@@ -2,19 +2,19 @@
 	"name": "Any to MP4",
 	"short_name": "Any to MP4",
 	"lang": "en-US",
-	"start_url": "https://www.anytomp4.com",
+	"start_url": "https://lrusso.github.io/AnyToMP4",
 	"display": "standalone",
 	"orientation": "portrait",
 	"theme_color": "#18222e",
 	"background_color": "#000000",
 	"icons": [
 		{
-			"src": "https://www.anytomp4.com/AnyToMP4FavIcon_192x192.png",
+			"src": "https://lrusso.github.io/AnyToMP4/AnyToMP4FavIcon_192x192.png",
 			"sizes": "192x192",
 			"type": "image/png"
 		},
 		{
-			"src": "https://www.anytomp4.com/AnyToMP4FavIcon_512x512.png",
+			"src": "https://lrusso.github.io/AnyToMP4/AnyToMP4FavIcon_512x512.png",
 			"sizes": "512x512",
 			"type": "image/png"
 		}
