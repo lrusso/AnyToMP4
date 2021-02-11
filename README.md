@@ -6,7 +6,7 @@ Convert any video file to MP4 in JavaScript.
 
 ## Web:
 
-https://lrusso.github.io/AnyToMP4
+https://lrusso.github.io/AnyToMP4/AnyToMP4.htm
 
 ## Using ffmpeg porting from:
 
