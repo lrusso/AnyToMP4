@@ -1,5 +1,5 @@
 const filesToCache = [
-	"/",
+	"AnyToMP4.htm",
 	"AnyToMP4.js",
 	"AnyToMP4.json",
 	"AnyToMP4.png",
