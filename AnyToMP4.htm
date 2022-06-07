@@ -250,6 +250,16 @@
 						case "stderr":
 						console.log(msg.data);
 
+						// CHECKING IF THERE WAS AN ERROR WHEN TRYING TO LOAD THE VIDEO FILTERS
+						if (msg.data=="Error opening filters!")
+							{
+							// TERMINATING THE WORKER
+							worker.terminate();
+
+							// THROWING AN ERROR TO SHOW THE ALERT BOX AND RELOAD THE PAGE
+							throw "Error opening filters!";
+							}
+
 						// LOOKING FOR THE VIDEO RESOLUTION
 						var resolutionChecker = videoResolutionPatchRegEx.exec(msg.data);
 
