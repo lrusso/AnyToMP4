@@ -189,6 +189,7 @@
 			// UPDATING THE 'CONVERTING...' LABEL VALUE
 			document.getElementById("progress-title-container-label").innerHTML = STRING_CONVERTING;
 
+			var worker = null;
 			var contentSource;
 			var contentFilename;
 			var contentProgress = null;
@@ -196,126 +197,175 @@
 			var contentDuration = null;
 			var contentDurationRegEx = /Duration: ([0-9][0-9]:[0-9][0-9]:[0-9][0-9]).*\/s/g;
 			var circleProgressBar = new ProgressBar.Circle(document.getElementById("progress-bar-container"), { strokeWidth: 5, easing: "easeInOut", duration: 500, color: "#3a76b1", trailColor: "#D0D0D0", trailWidth: 1, svgStyle: null });
+			var videoResolutionPatch = false;
+			var videoResolutionPatchRegEx = /Stream.*?(\d+)x(\d+),/g;
 
-			// CREATING THE WEB WORKER
-			var worker = new Worker("AnyToMP4.js")
-
-			// SETTING WHAT WILL HAPPEN WHEN A MESSAGE IS RECEIVED FROM THE WEB WORKER
-			worker.onmessage = function(e)
+			function createWorker()
 				{
-				// GETTING THE WORKER MESSAGE
-				var msg = e.data;
+				// CREATING THE WEB WORKER
+				worker = new Worker("AnyToMP4.js")
 
-				// CHECKING THE WORKER MESSAGE
-				switch (msg.type)
+				// SETTING WHAT WILL HAPPEN WHEN A MESSAGE IS RECEIVED FROM THE WEB WORKER
+				worker.onmessage = function(e)
 					{
-					case "ready":
-					// HIDING THE PLEASE WAIT ICON
-					document.getElementsByClassName("pleasewait")[0].style.display = "none";
+					// GETTING THE WORKER MESSAGE
+					var msg = e.data;
 
-					// SHOWING THE UPLOAD ICON
-					document.getElementsByClassName("gui_upload")[0].style.display = "block";
-					document.getElementsByClassName("gui_upload_shadow")[0].style.display = "block";
-
-					// SETTING WHAT WILL HAPPEN WHEN THE USER CLICK OR TOUCHES THE UPLOAD ICON
-					document.getElementsByClassName("gui_upload")[0].addEventListener("click",function(event)
+					// CHECKING THE WORKER MESSAGE
+					switch (msg.type)
 						{
-						// CLEARING THE SELECTED FILE VALUE (IF ANY)
-						document.getElementById("gui_controls_file").value = null;
+						case "ready":
+						// HIDING THE PLEASE WAIT ICON
+						document.getElementsByClassName("pleasewait")[0].style.display = "none";
 
-						// OPENING THE UPLOAD FILE SYSTEM DIALOG
-						document.getElementById("gui_controls_file").click();
-						});
-					break;
+						// SHOWING THE UPLOAD ICON
+						document.getElementsByClassName("gui_upload")[0].style.display = "block";
+						document.getElementsByClassName("gui_upload_shadow")[0].style.display = "block";
 
-					case "stdout":
-					case "stderr":
-					console.log(msg.data);
-					// CHECKING IF THERE IS A DURATION VALUE
-					if (contentDuration==null)
-						{
-						// MATCHING FOR A DURATION VALUE IN THE WORKER MESSAGE
-						var match = contentDurationRegEx.exec(msg.data);
-
-						// CHECKING IF THE IS A DURATION VALUE IN THE WORKER MESSAGE
-						if(match)
+						// SETTING WHAT WILL HAPPEN WHEN THE USER CLICK OR TOUCHES THE UPLOAD ICON
+						document.getElementsByClassName("gui_upload")[0].addEventListener("click",function(event)
 							{
-							// SETTING THE DURATION VALUE
-							contentDuration = match[1];
-							}
-						}
-						else
-						{
-						// MATCHING FOR A PROGRESS VALUE IN THE WORKER MESSAGE
-						var match = contentProgressRegEx.exec(msg.data);
+							// CLEARING THE SELECTED FILE VALUE (IF ANY)
+							document.getElementById("gui_controls_file").value = null;
 
-						// CHECKING IF THE IS A PROGRESS VALUE IN THE WORKER MESSAGE
-						if(match)
+							// OPENING THE UPLOAD FILE SYSTEM DIALOG
+							document.getElementById("gui_controls_file").click();
+							});
+
+						// CHECKING IF THE VIDEO RESOLUTION PATCH MUST BE EXECUTED BECAUSE THIS
+						// EMSCRIPTEN PORTING DOESN'T ALLOW TO WRITE VIDEO HIGHER THAN 1080P
+						if (videoResolutionPatch==true)
 							{
-							// SETTING THE PROGRESS VALUE
-							contentProgress = match[1];
+							// CONVERTING THE SOURCE TO MP4 IN 1080P
+							worker.postMessage({
+								type: "run",
+								TOTAL_MEMORY: 536870912,
+								arguments: ["-i","input.mp4","-crf","23","-vf","scale=-1:1080","output.mp4"],
+								MEMFS: contentSource
+								});
 							}
-						}
+						break;
 
-					// CHECKING IF THERE IS A DURATION AND PROGRESS VALUE
-					if (contentDuration!=null && contentProgress!=null)
-						{
-						// GETTING THE CURRENT PERCENTAGE
-						var currentPercentage = getPercentage(contentProgress,contentDuration,1);
+						case "stdout":
+						case "stderr":
+						console.log(msg.data);
 
-						// VALIDATING THE CURRENT PERCENTAGE
-						if (currentPercentage<=100)
+						// LOOKING FOR THE VIDEO RESOLUTION
+						var resolutionChecker = videoResolutionPatchRegEx.exec(msg.data);
+
+						// CHECKING IF THE VIDEO RESOLUTION WAS FOUND
+						if (resolutionChecker)
 							{
-							// UPDATING THE PROGRESS LABEL
-							document.getElementById("progress-value-container-number").innerHTML = currentPercentage + "%";
+							// CHECKING IF THE VIDEO RESOLUTION IS GREATER THAN 1080
+							if (resolutionChecker[2]>1080)
+								{
+								// CHECKING IF THE VIDEO RESOLUTION PATCH IS DISABLED
+								if (videoResolutionPatch==false)
+									{
+									// ENABLING THE VIDEO RESOLUTION PATCH
+									videoResolutionPatch = true;
 
-							// UPDATING THE SITE TITLE WITH THE CURRENT PERCENTAGE
-							document.title = currentPercentage + "% - " + SITE_TITLE;
+									// TERMINATING THE WORKER
+									worker.terminate();
 
-							// UPDATING THE PROGRESS BAR
-							circleProgressBar.animate(currentPercentage / 100);
+									// WAITING 250 MS
+									setTimeout(function()
+										{
+										// RESTARTING THE WORKER
+										createWorker();
+										}, 250);
+									return;
+									}
+								}
 							}
+
+						// CHECKING IF THERE IS A DURATION VALUE
+						if (contentDuration==null)
+							{
+							// MATCHING FOR A DURATION VALUE IN THE WORKER MESSAGE
+							var match = contentDurationRegEx.exec(msg.data);
+
+							// CHECKING IF THE IS A DURATION VALUE IN THE WORKER MESSAGE
+							if(match)
+								{
+								// SETTING THE DURATION VALUE
+								contentDuration = match[1];
+								}
+							}
+							else
+							{
+							// MATCHING FOR A PROGRESS VALUE IN THE WORKER MESSAGE
+							var match = contentProgressRegEx.exec(msg.data);
+
+							// CHECKING IF THE IS A PROGRESS VALUE IN THE WORKER MESSAGE
+							if(match)
+								{
+								// SETTING THE PROGRESS VALUE
+								contentProgress = match[1];
+								}
+							}
+
+						// CHECKING IF THERE IS A DURATION AND PROGRESS VALUE
+						if (contentDuration!=null && contentProgress!=null)
+							{
+							// GETTING THE CURRENT PERCENTAGE
+							var currentPercentage = getPercentage(contentProgress,contentDuration,1);
+
+							// VALIDATING THE CURRENT PERCENTAGE
+							if (currentPercentage<=100)
+								{
+								// UPDATING THE PROGRESS LABEL
+								document.getElementById("progress-value-container-number").innerHTML = currentPercentage + "%";
+
+								// UPDATING THE SITE TITLE WITH THE CURRENT PERCENTAGE
+								document.title = currentPercentage + "% - " + SITE_TITLE;
+
+								// UPDATING THE PROGRESS BAR
+								circleProgressBar.animate(currentPercentage / 100);
+								}
+							}
+						break;
+
+						case "exit":
+						console.log("Process exited with code " + msg.data);
+						break;
+
+						case "done":
+						// HIDING THE PROGRESS BAR
+						document.getElementById("progress-shadow").style.display = "none";
+						document.getElementById("progress-title-container").style.display = "none";
+						document.getElementById("progress-title-container-label").style.display = "none";
+						document.getElementById("progress-bar-container").style.display = "none";
+						document.getElementById("progress-value-container").style.display = "none";
+
+						// CLEARING THE VARIABLES
+						videoResolutionPatch = false;
+						contentSource = null;
+						contentProgress = null;
+						contentDuration = null;
+						circleProgressBar.animate(0);
+						document.getElementById("progress-value-container-number").innerHTML = "";
+
+						// RESTORING THE SITE TITLE
+						document.title = SITE_TITLE + SITE_DESCRIPTION;
+
+						// CHECKING IF THERE IS A CONVERTED VIDEO TO DOWNLOADED
+						if (msg.data.MEMFS[0])
+							{
+							// DOWNLOADING THE CONVERTED VIDEO
+							downloadVideo(new Blob([msg.data.MEMFS[0].data],{type:"video/mp4"}));
+							}
+							else
+							{
+							// SHOWING THE 'ERROR WHILE CONVERTING' MESSAGE
+							alertCustom(STRING_ERRORCONVERTING_TITLE,STRING_ERRORCONVERTING_MESSAGE,STRING_ERRORCONVERTING_ACCEPT);
+							}
+						break;
 						}
-					break;
 
-					case "exit":
-					console.log("Process exited with code " + msg.data);
-					break;
-
-					case "done":
-					// HIDING THE PROGRESS BAR
-					document.getElementById("progress-shadow").style.display = "none";
-					document.getElementById("progress-title-container").style.display = "none";
-					document.getElementById("progress-title-container-label").style.display = "none";
-					document.getElementById("progress-bar-container").style.display = "none";
-					document.getElementById("progress-value-container").style.display = "none";
-
-					// CLEARING THE VARIABLES
-					contentSource = null;
-					contentProgress = null;
-					contentDuration = null;
-					circleProgressBar.animate(0);
-					document.getElementById("progress-value-container-number").innerHTML = "";
-
-					// RESTORING THE SITE TITLE
-					document.title = SITE_TITLE + SITE_DESCRIPTION;
-
-					// CHECKING IF THERE IS A CONVERTED VIDEO TO DOWNLOADED
-					if (msg.data.MEMFS[0])
-						{
-						// DOWNLOADING THE CONVERTED VIDEO
-						downloadVideo(new Blob([msg.data.MEMFS[0].data],{type:"video/mp4"}));
-						}
-						else
-						{
-						// SHOWING THE 'ERROR WHILE CONVERTING' MESSAGE
-						alertCustom(STRING_ERRORCONVERTING_TITLE,STRING_ERRORCONVERTING_MESSAGE,STRING_ERRORCONVERTING_ACCEPT);
-						}
-					break;
-					}
-
-				return true;
-				};
+					return true;
+					};
+				}
 
 			function readMultimediaFile(files)
 				{
@@ -350,6 +400,9 @@
 
 							// CREATING THE SOURCE
 							contentSource = [{name: "input.mp4", data}];
+
+							// DISABLING THE VIDEO PATCH RESOLUTION
+							videoResolutionPatch = false;
 
 							// CONVERTING THE SOURCE TO MP4
 							worker.postMessage({
@@ -412,6 +465,8 @@
 				link.remove();
 				}
 
+			createWorker();
+
 			window.oncontextmenu = function()
 				{
 				// DISABLING THE CONTEXT MENU
@@ -428,6 +483,7 @@
 				document.getElementById("progress-value-container").style.display = "none";
 
 				// CLEARING THE VARIABLES
+				videoResolutionPatch = false;
 				contentSource = null;
 				contentProgress = null;
 				contentDuration = null;
