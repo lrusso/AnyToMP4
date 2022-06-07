@@ -190,8 +190,8 @@
 			document.getElementById("progress-title-container-label").innerHTML = STRING_CONVERTING;
 
 			var worker = null;
-			var contentSource;
-			var contentFilename;
+			var contentSource = null;
+			var contentFilename = null;
 			var contentProgress = null;
 			var contentProgressRegEx = /.*time=([0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9]).*speed=/g;
 			var contentDuration = null;
@@ -233,7 +233,7 @@
 							});
 
 						// CHECKING IF THE VIDEO RESOLUTION PATCH MUST BE EXECUTED BECAUSE THIS
-						// EMSCRIPTEN PORTING DOESN'T ALLOW TO WRITE VIDEO HIGHER THAN 1080P
+						// EMSCRIPTEN PORTING DOESN'T ALLOW TO WRITE VIDEO HIGHER THAN 1080P.
 						if (videoResolutionPatch==true)
 							{
 							// CONVERTING THE SOURCE TO MP4 IN 1080P
@@ -465,6 +465,7 @@
 				link.remove();
 				}
 
+			// CREATING THE WEB WORKER
 			createWorker();
 
 			window.oncontextmenu = function()
